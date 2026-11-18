@@ -1,5 +1,5 @@
 ecrCredsSync:
-  applicationName: ecr-creds-sync
+  applicationName: ecr-creds-sync-operator
   namespace: argocd
   targetNamespace: hypershift
   project: default
