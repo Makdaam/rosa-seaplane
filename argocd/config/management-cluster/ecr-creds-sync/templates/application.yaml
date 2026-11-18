@@ -15,7 +15,8 @@ spec:
     helm:
       values: |
         {{- if index .Values "ecrCredsSync" "helmValues" }}
-        {{- toYaml (index .Values "ecrCredsSync" "helmValues") | nindent 8 }}
+        ecrCredsSync:
+        {{- toYaml (index .Values "ecrCredsSync" "helmValues") | nindent 10 }}
         {{- end }}
 
   destination:
