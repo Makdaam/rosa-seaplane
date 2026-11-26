@@ -164,6 +164,12 @@ spec:
             aws-load-balancer-controller:
               clusterName: '{{ '{{ .metadata.labels.cluster_name }}' }}'
               vpcId: '{{ '{{ .metadata.annotations.vpc_id }}' }}'
+            # HyperShift operator OCP ECR mirror configuration.
+            # registryOverrides is set from the SSM-sourced annotation so the
+            # operator substitutes every HCP pod image reference to the ECR URI.
+            hypershift:
+              ecrMirror:
+                registryOverrides: '{{ '{{ index .metadata.annotations "ecr_mirror_registry_overrides" | default "" }}' }}'
             karpenter:
               settings:
                 clusterName: '{{ '{{ .metadata.labels.cluster_name }}' }}'

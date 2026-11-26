@@ -312,6 +312,10 @@ applications:
         # @doc applications.management-cluster.hypershift.externalDns.domain External DNS domain filter for HyperShift. Should match the regional zone so external-dns discovers zone shards.
         # @used-by applications.management-cluster.hypershift.externalDns.domain _context
         domain: "{% if dns.domain %}{{ deployment_name }}.{{ dns.domain }}{% endif %}"
+      ecrMirror:
+        # @doc applications.management-cluster.hypershift.ecrMirror.registryOverrides Comma-separated src=ecr-uri pairs passed to the HyperShift operator as --registry-overrides. When set, the operator substitutes every HCP pod image reference to the ECR mirror URI. Injected at runtime from the ecr_mirror_registry_overrides cluster secret annotation — do not set here.
+        # @used-by applications.management-cluster.hypershift.ecrMirror.registryOverrides _context
+        registryOverrides: ""
   regional-cluster:
     eksNodePool:
       # @doc applications.regional-cluster.eksNodePool.instanceFamilies Instance families for the regional Karpenter NodePool.

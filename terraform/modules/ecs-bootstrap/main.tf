@@ -247,6 +247,7 @@ resource "aws_ecs_task_definition" "bootstrap" {
               ecr_mirror_sources: "$ECR_MIRROR_SOURCES"
               ecr_mirror_base_secret_name: "$ECR_MIRROR_BASE_SECRET_NAME"
               ecr_mirror_ecr_repository: "$ECR_MIRROR_ECR_REPOSITORY"
+              ecr_mirror_registry_overrides: "$ECR_MIRROR_REGISTRY_OVERRIDES"
               vpc_id: "$VPC_ID"
           type: Opaque
           stringData:

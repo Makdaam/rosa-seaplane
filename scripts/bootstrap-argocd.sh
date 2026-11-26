@@ -108,6 +108,26 @@ RHOBS_API_URL="${RHOBS_API_URL:-}"
 DNS_ZONE_OPERATOR_ROLE_ARN="${DNS_ZONE_OPERATOR_ROLE_ARN:-}"
 OIDC_KEY_READER_ROLE_ARN="${OIDC_KEY_READER_ROLE_ARN:-}"
 
+# Compute the --registry-overrides string for the HyperShift operator so it
+# substitutes OCP component image references to the ECR mirror URI before
+# stamping them onto every HCP pod. Format: src=ecr,...
+#
+# Only ECR_MIRROR_REPOSITORY (the actual mirrored component image repo) is
+# included — NOT the broader sources such as ocp-release or the bare
+# openshift-release-dev namespace. Those broader sources are correct for
+# CRI-O's registries.conf (imageContentSources) which uses digest-only
+# matching, but --registry-overrides does string substitution on the full
+# image reference including tag. The HyperShift operator uses the release
+# image (ocp-release:VERSION tag) to extract metadata; redirecting that to
+# ocp-v5.0-art-dev produces a "manifest unknown" error because the ECR mirror
+# stores only component images, not the release manifest. Only ocp-v5.0-art-dev
+# (or whichever repo ECR_MIRROR_REPOSITORY names) is safe to override at the
+# operator level.
+ECR_MIRROR_REGISTRY_OVERRIDES=""
+if [[ -n "${ECR_MIRROR_REPOSITORY:-}" && -n "${ECR_MIRROR_ECR_REPOSITORY:-}" ]]; then
+    ECR_MIRROR_REGISTRY_OVERRIDES="quay.io/${ECR_MIRROR_REPOSITORY}=${ECR_MIRROR_ECR_REPOSITORY}"
+fi
+
 OVERRIDES_JSON=$(jq -nc \
   --arg cluster_name "$CLUSTER_NAME" \
   --arg cluster_type "$CLUSTER_TYPE" \
@@ -142,6 +162,7 @@ OVERRIDES_JSON=$(jq -nc \
   --arg ecr_mirror_sources "${ECR_MIRROR_SOURCES:-}" \
   --arg ecr_mirror_base_secret_name "${ECR_MIRROR_BASE_SECRET_NAME:-}" \
   --arg ecr_mirror_ecr_repository "${ECR_MIRROR_ECR_REPOSITORY:-}" \
+  --arg ecr_mirror_registry_overrides "${ECR_MIRROR_REGISTRY_OVERRIDES:-}" \
   '{
     containerOverrides: [{
       name: "bootstrap",
@@ -178,7 +199,8 @@ OVERRIDES_JSON=$(jq -nc \
         {name: "ECR_MIRROR_REPOSITORY", value: $ecr_mirror_repository},
         {name: "ECR_MIRROR_SOURCES", value: $ecr_mirror_sources},
         {name: "ECR_MIRROR_BASE_SECRET_NAME", value: $ecr_mirror_base_secret_name},
-        {name: "ECR_MIRROR_ECR_REPOSITORY", value: $ecr_mirror_ecr_repository}
+        {name: "ECR_MIRROR_ECR_REPOSITORY", value: $ecr_mirror_ecr_repository},
+        {name: "ECR_MIRROR_REGISTRY_OVERRIDES", value: $ecr_mirror_registry_overrides}
       ]
     }]
   }')

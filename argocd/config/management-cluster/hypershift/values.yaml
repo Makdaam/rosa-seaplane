@@ -13,6 +13,15 @@ hypershift:
     domain: ""
     image: registry.redhat.io/edo/external-dns-rhel9:c8f7fbd233b9fbcc312672a6e5afd020655c791f
 
+  # OCP ECR mirror configuration for the HyperShift operator. When set,
+  # --registry-overrides is passed to hypershift install so the operator
+  # substitutes every OCP release image reference to the ECR mirror URI before
+  # stamping it onto HCP pod specs (CPO, etcd-operator, oauth-server, etc.).
+  # registryOverrides is injected at runtime from the ApplicationSet annotation
+  # ecr_mirror_registry_overrides (empty when the mirror is not active).
+  ecrMirror:
+    registryOverrides: ""
+
   # Hypershift configuration
   hypershift:
     image: quay.io/acm-d/rhtap-hypershift-operator@sha256:253aec94d67f93a5a9fe93382d6b187611306e4beaab56199111df81119e53b7
